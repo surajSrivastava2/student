@@ -1,0 +1,555 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Companion AI</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:Arial;
+background:#0f0f10;
+color:#e4e4e4;
+height:100vh;
+display:flex;
+}
+
+/* AUTH */
+
+.auth{
+width:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.auth-box{
+background:#1e1e21;
+padding:40px;
+border-radius:10px;
+width:320px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.auth-box input{
+padding:10px;
+background:#2a2a2d;
+border:none;
+color:white;
+border-radius:6px;
+}
+
+.auth-box button{
+padding:10px;
+background:#10a37f;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* APP */
+
+#app{
+display:none;
+width:100%;
+}
+
+.sidebar{
+width:240px;
+background:#151517;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:8px;
+border-right:1px solid #2a2a2d;
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.sidebar button{
+background:#1f1f22;
+border:none;
+padding:10px;
+color:white;
+border-radius:6px;
+cursor:pointer;
+text-align:left;
+}
+
+.sidebar button:hover{
+background:#2a2a2d;
+}
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.header{
+padding:15px;
+border-bottom:1px solid #2a2a2d;
+display:flex;
+justify-content:space-between;
+}
+
+.module{
+display:none;
+padding:25px;
+overflow:auto;
+height:100%;
+}
+
+.active{
+display:block;
+}
+
+/* CHAT */
+
+.msg{
+background:#1e1e21;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+max-width:600px;
+}
+
+.user{
+background:#2a2a2d;
+margin-left:auto;
+}
+
+.input{
+display:flex;
+margin-top:10px;
+}
+
+.input input{
+flex:1;
+padding:10px;
+background:#2a2a2d;
+border:none;
+color:white;
+}
+
+.input button{
+padding:10px;
+background:#10a37f;
+border:none;
+color:white;
+}
+
+textarea{
+width:100%;
+height:220px;
+background:#1e1e21;
+border:none;
+color:white;
+padding:10px;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td,th{
+padding:10px;
+border-bottom:1px solid #333;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="login" class="auth">
+
+<div class="auth-box">
+
+<h2>Companion Login</h2>
+
+<input id="loginEmail" placeholder="Email">
+<input id="loginPassword" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<p>No account?</p>
+
+<button onclick="showSignup()">Signup</button>
+
+</div>
+</div>
+
+<!-- SIGNUP -->
+
+<div id="signup" class="auth" style="display:none">
+
+<div class="auth-box">
+
+<h2>Create Account</h2>
+
+<input id="signupName" placeholder="Name">
+<input id="signupEmail" placeholder="Email">
+<input id="signupPassword" type="password" placeholder="Password">
+
+<button onclick="signup()">Create</button>
+
+<button onclick="showLogin()">Back</button>
+
+</div>
+</div>
+
+<!-- APP -->
+
+<div id="app">
+
+<div class="sidebar">
+
+<div class="logo">⚡ Companion AI</div>
+
+<button onclick="openModule('dashboard')">Dashboard</button>
+<button onclick="openModule('tutor')">AI Tutor</button>
+<button onclick="openModule('notes')">Notes</button>
+<button onclick="openModule('quiz')">Quiz Generator</button>
+<button onclick="openModule('planner')">Study Planner</button>
+<button onclick="openModule('attendance')">Attendance</button>
+<button onclick="openModule('progress')">Progress</button>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+
+<div>Student Companion System</div>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="module active">
+
+<h2>Welcome to Companion AI</h2>
+<p>Use the sidebar to access your study tools.</p>
+
+</div>
+
+<!-- AI TUTOR -->
+
+<div id="tutor" class="module">
+
+<div id="chat">
+
+<div class="msg">Hello 👋 I am your AI Tutor.</div>
+
+</div>
+
+<div class="input">
+
+<input id="message" placeholder="Ask your doubt...">
+
+<button onclick="sendMessage()">Send</button>
+
+</div>
+
+</div>
+
+<!-- NOTES -->
+
+<div id="notes" class="module">
+
+<h2>Notes</h2>
+
+<textarea id="notesArea"></textarea>
+
+<br><br>
+
+<button onclick="saveNotes()">Save Notes</button>
+
+</div>
+
+<!-- QUIZ -->
+
+<div id="quiz" class="module">
+
+<h2>Quiz Generator</h2>
+
+<input id="quizTopic" placeholder="Enter topic">
+
+<button onclick="generateQuiz()">Generate</button>
+
+<div id="quizArea"></div>
+
+</div>
+
+<!-- PLANNER -->
+
+<div id="planner" class="module">
+
+<h2>Study Planner</h2>
+
+<input id="subjects" placeholder="Subjects comma separated">
+
+<input id="hours" placeholder="Study hours">
+
+<button onclick="createPlan()">Generate Plan</button>
+
+<div id="plan"></div>
+
+</div>
+
+<!-- ATTENDANCE -->
+
+<div id="attendance" class="module">
+
+<h2>Attendance</h2>
+
+<table id="attendanceTable"></table>
+
+</div>
+
+<!-- PROGRESS -->
+
+<div id="progress" class="module">
+
+<h2>Progress</h2>
+
+<div id="progressArea"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function showSignup(){
+document.getElementById("login").style.display="none"
+document.getElementById("signup").style.display="flex"
+}
+
+function showLogin(){
+document.getElementById("signup").style.display="none"
+document.getElementById("login").style.display="flex"
+}
+
+function logout(){
+location.reload()
+}
+
+function openModule(name){
+
+document.querySelectorAll(".module").forEach(m=>{
+m.classList.remove("active")
+})
+
+document.getElementById(name).classList.add("active")
+
+}
+
+/* LOGIN */
+
+async function login(){
+
+let email=document.getElementById("loginEmail").value
+let password=document.getElementById("loginPassword").value
+
+let res=await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email,password})
+})
+
+let data=await res.json()
+
+if(data.success){
+
+localStorage.setItem("userId",data.user.id)
+
+document.getElementById("login").style.display="none"
+document.getElementById("app").style.display="flex"
+
+}else{
+alert(data.message)
+}
+
+}
+
+/* SIGNUP */
+
+async function signup(){
+
+let name=document.getElementById("signupName").value
+let email=document.getElementById("signupEmail").value
+let password=document.getElementById("signupPassword").value
+
+let res=await fetch("/api/signup",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,email,password})
+})
+
+let data=await res.json()
+
+alert(data.message)
+
+if(data.success){
+showLogin()
+}
+
+}
+
+/* CHAT */
+
+async function sendMessage(){
+
+let input=document.getElementById("message")
+let text=input.value
+
+if(!text) return
+
+let chat=document.getElementById("chat")
+
+chat.innerHTML+=`<div class="msg user">${text}</div>`
+
+input.value=""
+
+let res=await fetch("/api/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:text})
+})
+
+let data=await res.json()
+
+chat.innerHTML+=`<div class="msg">${data.reply}</div>`
+
+}
+
+/* NOTES */
+
+async function saveNotes(){
+
+let notes=document.getElementById("notesArea").value
+let userId=localStorage.getItem("userId")
+
+await fetch("/api/notes/save",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({userId,notes})
+})
+
+alert("Notes saved")
+
+}
+
+/* QUIZ */
+
+async function generateQuiz(){
+
+let topic=document.getElementById("quizTopic").value
+
+let res=await fetch("/api/quiz",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({topic})
+})
+
+let data=await res.json()
+
+let html=""
+
+data.quiz.forEach(q=>{
+html+=`<p>${q.q}</p>`
+})
+
+document.getElementById("quizArea").innerHTML=html
+
+}
+
+/* PLANNER */
+
+async function createPlan(){
+
+let subjects=document.getElementById("subjects").value.split(",")
+let hours=document.getElementById("hours").value
+
+let res=await fetch("/api/planner",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({subjects,hours})
+})
+
+let data=await res.json()
+
+let html=""
+
+data.plan.forEach(p=>{
+html+=`<p>${p.subject} - ${p.hours} hours</p>`
+})
+
+document.getElementById("plan").innerHTML=html
+
+}
+
+/* ATTENDANCE */
+
+async function loadAttendance(){
+
+let res=await fetch("/api/attendance")
+
+let data=await res.json()
+
+let html="<tr><th>Subject</th><th>Percent</th></tr>"
+
+data.forEach(a=>{
+html+=`<tr><td>${a.subject}</td><td>${a.percent}%</td></tr>`
+})
+
+document.getElementById("attendanceTable").innerHTML=html
+
+}
+
+/* PROGRESS */
+
+async function loadProgress(){
+
+let res=await fetch("/api/progress")
+
+let data=await res.json()
+
+let html=""
+
+data.forEach(p=>{
+html+=`<p>${p.subject}: ${p.progress}%</p>`
+})
+
+document.getElementById("progressArea").innerHTML=html
+
+}
+
+loadAttendance()
+loadProgress()
+
+</script>
+
+</body>
+</html>
+```
