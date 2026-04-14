@@ -209,6 +209,8 @@ app.get("/api/progress", (req, res) => {
 
 /* START SERVER */
 
-app.listen(PORT, () => {
-  console.log(`Companion AI backend running at http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is live on port ${PORT}`);
 });
