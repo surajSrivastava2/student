@@ -514,7 +514,7 @@ document.getElementById("plan").innerHTML=html
 
 async function loadAttendance(){
 
-let res=await fetch("/api/attendance")
+let res=await fetch("https://student-ygb9.onrender.com/api/attendance")
 
 let data=await res.json()
 
