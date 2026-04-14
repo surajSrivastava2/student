@@ -2,93 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Hub Pro</title>
+    <title>AI Student Companion</title>
     <style>
-        :root { --primary: #4a90e2; --secondary: #2c3e50; --success: #27ae60; --danger: #e74c3c; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 
-<body>
-
-    <div id="auth-container" class="card">sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        #app { display: none; max-width: 800px; width: 90%; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; margin-top: 10px; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        .nav-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .nav-menu button { flex: 1; font-size: 0.9rem; background: var(--secondary); }
-        .module { display: none; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
-        .active-module { display: block; }
-        #chatBox { height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 10px; text-align: left; margin-bottom: 10px; background: #fafafa; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
-        th { background: var(--primary); color: white; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { display: block; width: 100%; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #quizDisplay { background: #eee; padding: 15px; margin-top: 10px; white-space: pre-wrap; }
     </style>
 </head>
-        <div id="login-form">
-            <h2>Student Login</h2>
-            <input type="email" id="email" placeholder="Email Address">
-            <input type="password" id="pass" placeholder="Password">
-            <button onclick="handleLogin()">Sign In</button>
-            <p style="margin-top:15px; font-size:0.9rem;">New student? <span onclick="toggleAuth(true)" style="color:var(--primary); cursor:pointer;">Register here</span></p>
+<body>
+
+    <div class="box" id="authSection">
+        <div id="loginForm">
+            <h2>Login</h2>
+            <input type="email" id="email" placeholder="Email (test@test.com)">
+            <input type="password" id="pass" placeholder="Password (123)">
+            <button onclick="login()">Login</button>
+            <p onclick="toggleAuth()" style="color:blue; cursor:pointer;">Don't have an account? Sign Up</p>
         </div>
 
-        <div id="signup-form" style="display:none;">
-            <h2>Student Registration</h2>
+        <div id="signupForm" style="display:none;">
+            <h2>Sign Up</h2>
             <input type="text" id="newName" placeholder="Full Name">
-            <input type="email" id="newEmail" placeholder="Email Address">
+            <input type="email" id="newEmail" placeholder="Email">
             <input type="password" id="newPass" placeholder="Password">
-            <button onclick="handleSignup()" style="background:var(--success);">Create Account</button>
-            <p style="margin-top:15px; font-size:0.9rem;">Already have an account? <span onclick="toggleAuth(false)" style="color:var(--primary); cursor:pointer;">Login</span></p>
+            <button onclick="signup()">Create Account</button>
+            <p onclick="toggleAuth()" style="color:blue; cursor:pointer;">Already have an account? Login</p>
         </div>
     </div>
 
-    <div id="app" class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="welcomeMsg">Welcome!</h2>
-            <button onclick="location.reload()" style="width:auto; background:var(--danger); padding:8px 15px;">Logout</button>
-        </div>
-
-        <div class="nav-menu">
-            <button onclick="showModule('attendance')">📅 Attendance</button>
-            <button onclick="showModule('tutor')">🤖 AI Tutor</button>
-            <button onclick="showModule('quiz')">📝 Quiz</button>
-        </div>
-
-        <div id="attendance" class="module active-module">
-            <h3>Current Attendance</h3>
-            <table id="attTable"><tr><td>Loading records...</td></tr></table>
-        </div>
-
-        <div id="tutor" class="module">
-            <h3>AI Study Companion</h3>
+    <div id="mainApp" style="display:none;">
+        <div class="box">
+            <h2>AI Tutor (Chat)</h2>
+            <input type="text" id="chatInput" placeholder="Ask anything...">
+            <button onclick="askAI()">Ask AI</button>
             <div id="chatBox"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="aiInput" placeholder="Ask a question...">
-                <button onclick="askAI()" style="width:80px; margin:10px 0;">Send</button>
-            </div>
         </div>
 
-        <div id="quiz" class="module">
-            <h3>Interactive Quiz</h3>
-            <div id="quizContainer">
-                <p>Ready to test your knowledge?</p>
-                <button onclick="startQuiz()">Start Quiz</button>
-            </div>
+        <div class="box">
+            <h2>AI Quiz Generator</h2>
+            <input type="text" id="quizTopic" placeholder="Enter topic (e.g. Physics)">
+            <button onclick="getQuiz()">Generate Quiz</button>
+            <div id="quizDisplay">Your quiz will appear here...</div>
         </div>
     </div>
 
-<script>
-    // Ye tumhara Render ka address hai
-    const BASE_URL = "https://student-ygb9.onrender.com/api"; 
+    <script>
+        const BASE_URL = "https://student-ygb9.onrender.com/api";
 
-    // 1. SIGNUP FUNCTION
-    async function signup() {
-        const name = document.getElementById('newName').value;
-        const email = document.getElementById('newEmail').value;
-        const password = document.getElementById('newPass').value;
+        function toggleAuth() {
+            const l = document.getElementById('loginForm');
+            const s = document.getElementById('signupForm');
+            l.style.display = l.style.display === "none" ? "block" : "none";
+            s.style.display = s.style.display === "none" ? "block" : "none";
+        }
 
-        try {
+        async function signup() {
+            const name = document.getElementById('newName').value;
+            const email = document.getElementById('newEmail').value;
+            const password = document.getElementById('newPass').value;
             const res = await fetch(`${BASE_URL}/signup`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -96,60 +70,47 @@
             });
             const data = await res.json();
             alert(data.message);
-            if(data.success) {
-                // Agar signup ho jaye toh login panel dikhao (agar banaya hai toh)
-                console.log("User registered!");
-            }
-        } catch (err) {
-            alert("Backend connected nahi hai. URL check karo!");
+            if(data.success) toggleAuth();
         }
-    }
 
-    // 2. LOGIN FUNCTION
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
-
-        try {
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
             const res = await fetch(`${BASE_URL}/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ email, password })
             });
             const data = await res.json();
-            if(data.success) { 
-                localStorage.setItem('user', JSON.stringify(data.user));
-                alert("Login Successful! Redirecting...");
-                window.location.href = "dashboard.html"; // Dashboard par bhej do
-            } else { 
-                alert(data.message); 
-            }
-        } catch (err) {
-            alert("Server error! Backend check karo.");
+            if(data.success) {
+                alert("Login Success!");
+                document.getElementById('authSection').style.display = "none";
+                document.getElementById('mainApp').style.display = "block";
+            } else { alert(data.message); }
         }
-    }
 
-    // 3. QUIZ GENERATOR FUNCTION
-    async function getQuiz() {
-        const topic = document.getElementById('quizTopic').value;
-        const display = document.getElementById('quizDisplay');
+        async function askAI() {
+            const msg = document.getElementById('chatInput').value;
+            const res = await fetch(`${BASE_URL}/chat`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            document.getElementById('chatBox').innerHTML += `<p><b>You:</b> ${msg}<br><b>AI:</b> ${data.reply}</p>`;
+        }
 
-        if(!topic) return alert("Topic daalo bhai!");
-        display.innerText = "AI is thinking... 🧠";
-
-        try {
+        async function getQuiz() {
+            const topic = document.getElementById('quizTopic').value;
+            document.getElementById('quizDisplay').innerText = "Generating...";
             const res = await fetch(`${BASE_URL}/quiz`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ topic })
             });
             const data = await res.json();
-            display.innerText = data.quiz;
-        } catch (err) {
-            display.innerText = "Quiz generate nahi ho paya.";
+            document.getElementById('quizDisplay').innerText = data.quiz;
         }
-    }
-</script>
+    </script>
 </body>
 </html>
-
