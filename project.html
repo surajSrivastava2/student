@@ -432,7 +432,7 @@ chat.innerHTML+=`<div class="msg user">${text}</div>`
 
 input.value=""
 
-let res=await fetch("/api/chat",{
+let res=awaitfetch("https://student-ygb9.onrender.com/api/chat", ...),{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({message:text})
@@ -467,7 +467,7 @@ async function generateQuiz(){
 
 let topic=document.getElementById("quizTopic").value
 
-let res=await fetch("/api/quiz",{
+let res=await fetch("https://student-ygb9.onrender.com/api/quiz", ...)
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({topic})
