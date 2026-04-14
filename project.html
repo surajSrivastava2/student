@@ -371,8 +371,9 @@ async function login(){
 let email=document.getElementById("loginEmail").value
 let password=document.getElementById("loginPassword").value
 
-let res=await fetch("/api/login",{
-method:"POST",
+let res=await fetch("https://student-ygb9.onrender.com/api/login", {
+    method: "POST",
+    // baaki ka code waisa hi rehne dein...,
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({email,password})
 })
