@@ -1,87 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Student Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Hub Pro</title>
     <style>
-        body { font-family: Arial; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #app, #signup { display: none; }
+        :root { --primary: #4a90e2; --secondary: #2c3e50; --success: #27ae60; --danger: #e74c3c; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        #app { display: none; max-width: 800px; width: 90%; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; margin-top: 10px; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .nav-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav-menu button { flex: 1; font-size: 0.9rem; background: var(--secondary); }
+        .module { display: none; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
+        .active-module { display: block; }
+        #chatBox { height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 10px; text-align: left; margin-bottom: 10px; background: #fafafa; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
-    <div id="login" class="card">
-        <h2>Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <p onclick="showSignup()" style="cursor:pointer; color:blue;">New? Signup</p>
+    <div id="auth-container" class="card">
+        <div id="login-form">
+            <h2>Student Login</h2>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="pass" placeholder="Password">
+            <button onclick="handleLogin()">Sign In</button>
+            <p style="margin-top:15px; font-size:0.9rem;">New student? <span onclick="toggleAuth(true)" style="color:var(--primary); cursor:pointer;">Register here</span></p>
+        </div>
+
+        <div id="signup-form" style="display:none;">
+            <h2>Student Registration</h2>
+            <input type="text" id="newName" placeholder="Full Name">
+            <input type="email" id="newEmail" placeholder="Email Address">
+            <input type="password" id="newPass" placeholder="Password">
+            <button onclick="handleSignup()" style="background:var(--success);">Create Account</button>
+            <p style="margin-top:15px; font-size:0.9rem;">Already have an account? <span onclick="toggleAuth(false)" style="color:var(--primary); cursor:pointer;">Login</span></p>
+        </div>
     </div>
 
-    <div id="signup" class="card">
-        <h2>Signup</h2>
-        <input type="text" id="signupName" placeholder="Name">
-        <input type="email" id="signupEmail" placeholder="Email">
-        <input type="password" id="signupPassword" placeholder="Password">
-        <button onclick="signup()">Signup</button>
-        <p onclick="showLogin()" style="cursor:pointer; color:blue;">Back to Login</p>
-    </div>
+    <div id="app" class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="welcomeMsg">Welcome!</h2>
+            <button onclick="location.reload()" style="width:auto; background:var(--danger); padding:8px 15px;">Logout</button>
+        </div>
 
-    <div id="app" class="card" style="width: 500px;">
-        <h2>Welcome Student!</h2>
-        <table id="attendanceTable" border="1" style="width:100%; border-collapse: collapse;"></table>
-        <br>
-        <button onclick="location.reload()" style="background:red;">Logout</button>
+        <div class="nav-menu">
+            <button onclick="showModule('attendance')">📅 Attendance</button>
+            <button onclick="showModule('tutor')">🤖 AI Tutor</button>
+            <button onclick="showModule('quiz')">📝 Quiz</button>
+        </div>
+
+        <div id="attendance" class="module active-module">
+            <h3>Current Attendance</h3>
+            <table id="attTable"><tr><td>Loading records...</td></tr></table>
+        </div>
+
+        <div id="tutor" class="module">
+            <h3>AI Study Companion</h3>
+            <div id="chatBox"></div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="aiInput" placeholder="Ask a question...">
+                <button onclick="askAI()" style="width:80px; margin:10px 0;">Send</button>
+            </div>
+        </div>
+
+        <div id="quiz" class="module">
+            <h3>Interactive Quiz</h3>
+            <div id="quizContainer">
+                <p>Ready to test your knowledge?</p>
+                <button onclick="startQuiz()">Start Quiz</button>
+            </div>
+        </div>
     </div>
 
 <script>
-    function showSignup() { document.getElementById("login").style.display = "none"; document.getElementById("signup").style.display = "flex"; }
-    function showLogin() { document.getElementById("signup").style.display = "none"; document.getElementById("login").style.display = "flex"; }
+    const API_BASE = "https://student-ygb9.onrender.com/api";
 
-    async function login() {
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
+    // --- NAVIGATION ---
+    function toggleAuth(isSignup) {
+        document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
+        document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
+    }
+
+    function showModule(modId) {
+        document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
+        document.getElementById(modId).classList.add('active-module');
+        if(modId === 'attendance') fetchAttendance();
+    }
+
+    // --- AUTH LOGIC ---
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
         try {
-            const res = await fetch("https://student-ygb9.onrender.com/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const res = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
             const data = await res.json();
             if(data.success) {
-                document.getElementById("login").style.display = "none";
-                document.getElementById("app").style.display = "block";
-                loadAttendance();
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('welcomeMsg').innerText = `Hi, ${data.user.name}!`;
+                fetchAttendance();
             } else { alert(data.message); }
-        } catch(e) { alert("Server Starting... Try again in 10 seconds!"); }
+        } catch (e) { alert("Server starting... wait 10 seconds."); }
     }
 
-    async function signup() {
-        const name = document.getElementById("signupName").value;
-        const email = document.getElementById("signupEmail").value;
-        const password = document.getElementById("signupPassword").value;
+    async function handleSignup() {
+        const name = document.getElementById('newName').value;
+        const email = document.getElementById('newEmail').value;
+        const password = document.getElementById('newPass').value;
         try {
-            const res = await fetch("https://student-ygb9.onrender.com/api/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const res = await fetch(`${API_BASE}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
             const data = await res.json();
             alert(data.message);
-            if(data.success) showLogin();
-        } catch(e) { alert("Signup Error"); }
+            if(data.success) toggleAuth(false);
+        } catch (e) { alert("Signup error"); }
     }
 
-    async function loadAttendance() {
+    // --- FEATURES ---
+    async function fetchAttendance() {
         try {
-            const res = await fetch("https://student-ygb9.onrender.com/api/attendance");
+            const res = await fetch(`${API_BASE}/attendance`);
             const data = await res.json();
-            let html = "<tr><th>Subject</th><th>%</th></tr>";
-            data.forEach(a => { html += `<tr><td>${a.subject}</td><td>${a.percent}%</td></tr>`; });
-            document.getElementById("attendanceTable").innerHTML = html;
-        } catch(e) { console.log("Fetch error"); }
+            let html = "<tr><th>Subject</th><th>Status</th></tr>";
+            data.forEach(item => {
+                html += `<tr><td>${item.subject}</td><td>${item.percent}%</td></tr>`;
+            });
+            document.getElementById('attTable').innerHTML = html;
+        } catch (e) { document.getElementById('attTable').innerHTML = "<tr><td>Error loading data</td></tr>"; }
+    }
+
+    async function askAI() {
+        const input = document.getElementById('aiInput');
+        const box = document.getElementById('chatBox');
+        if(!input.value) return;
+        
+        box.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        const query = input.value;
+        input.value = "";
+
+        try {
+            const res = await fetch(`${API_BASE}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: query })
+            });
+            const data = await res.json();
+            box.innerHTML += `<p style="color:var(--success)"><b>AI:</b> ${data.reply}</p>`;
+        } catch (e) { box.innerHTML += `<p style="color:var(--danger)"><b>AI:</b> Thinking... (Try again)</p>`; }
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function startQuiz() {
+        const container = document.getElementById('quizContainer');
+        container.innerHTML = `
+            <p><b>Q: Which language is used for web logic?</b></p>
+            <button onclick="alert('Correct!')">JavaScript</button>
+            <button onclick="alert('Try again!')">Python</button>
+        `;
     }
 </script>
 </body>
