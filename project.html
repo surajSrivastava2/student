@@ -1,108 +1,88 @@
-````
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #app, #signup { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login" class="card">
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p onclick="showSignup()" style="cursor:pointer; color:blue;">New? Signup</p>
+    </div>
+
+    <div id="signup" class="card">
+        <h2>Signup</h2>
+        <input type="text" id="signupName" placeholder="Name">
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPassword" placeholder="Password">
+        <button onclick="signup()">Signup</button>
+        <p onclick="showLogin()" style="cursor:pointer; color:blue;">Back to Login</p>
+    </div>
+
+    <div id="app" class="card" style="width: 500px;">
+        <h2>Welcome Student!</h2>
+        <table id="attendanceTable" border="1" style="width:100%; border-collapse: collapse;"></table>
+        <br>
+        <button onclick="location.reload()" style="background:red;">Logout</button>
+    </div>
+
 <script>
-// 1. NAVIGATION (Sabse pehle ye taaki buttons turant kaam karein)
-function showSignup() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("signup").style.display = "flex";
-}
+    function showSignup() { document.getElementById("login").style.display = "none"; document.getElementById("signup").style.display = "flex"; }
+    function showLogin() { document.getElementById("signup").style.display = "none"; document.getElementById("login").style.display = "flex"; }
 
-function showLogin() {
-    document.getElementById("signup").style.display = "none";
-    document.getElementById("login").style.display = "flex";
-}
+    async function login() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        try {
+            const res = await fetch("https://student-ygb9.onrender.com/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById("login").style.display = "none";
+                document.getElementById("app").style.display = "block";
+                loadAttendance();
+            } else { alert(data.message); }
+        } catch(e) { alert("Server Starting... Try again in 10 seconds!"); }
+    }
 
-function openModule(name) {
-    document.querySelectorAll(".module").forEach(m => m.classList.remove("active"));
-    const target = document.getElementById(name);
-    if(target) target.classList.add("active");
-}
-
-function logout() { location.reload(); }
-
-// 2. LOGIN (Backend Se Connected)
-async function login() {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-
-    if(!email || !password) return alert("Bhai, details toh daalo!");
-
-    try {
-        const res = await fetch("https://student-ygb9.onrender.com/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            localStorage.setItem("userId", data.user.id);
-            document.getElementById("login").style.display = "none";
-            document.getElementById("app").style.display = "flex";
-            loadAttendance(); // Login hote hi attendance load hogi
-        } else {
+    async function signup() {
+        const name = document.getElementById("signupName").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        try {
+            const res = await fetch("https://student-ygb9.onrender.com/api/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
             alert(data.message);
-        }
-    } catch (err) {
-        alert("Server Connecting... Ek baar fir try karo (Cold Start)");
+            if(data.success) showLogin();
+        } catch(e) { alert("Signup Error"); }
     }
-}
 
-// 3. SIGNUP
-async function signup() {
-    const name = document.getElementById("signupName").value;
-    const email = document.getElementById("signupEmail").value;
-    const password = document.getElementById("signupPassword").value;
-
-    try {
-        const res = await fetch("https://student-ygb9.onrender.com/api/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password })
-        });
-        const data = await res.json();
-        alert(data.message);
-        if(data.success) showLogin();
-    } catch (e) { alert("Signup Error!"); }
-}
-
-// 4. ATTENDANCE (Live Fetch)
-async function loadAttendance() {
-    const table = document.getElementById("attendanceTable");
-    table.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
-    
-    try {
-        const res = await fetch("https://student-ygb9.onrender.com/api/attendance");
-        const data = await res.json();
-        let html = "<tr><th>Subject</th><th>Percent</th></tr>";
-        data.forEach(a => {
-            html += `<tr><td>${a.subject}</td><td>${a.percent}%</td></tr>`;
-        });
-        table.innerHTML = html;
-    } catch (e) {
-        table.innerHTML = "<tr><td>Math</td><td>85% (Demo)</td></tr>";
+    async function loadAttendance() {
+        try {
+            const res = await fetch("https://student-ygb9.onrender.com/api/attendance");
+            const data = await res.json();
+            let html = "<tr><th>Subject</th><th>%</th></tr>";
+            data.forEach(a => { html += `<tr><td>${a.subject}</td><td>${a.percent}%</td></tr>`; });
+            document.getElementById("attendanceTable").innerHTML = html;
+        } catch(e) { console.log("Fetch error"); }
     }
-}
-
-// 5. CHAT (AI Tutor)
-async function sendMessage() {
-    const input = document.getElementById("message");
-    const chat = document.getElementById("chat");
-    if(!input.value) return;
-
-    chat.innerHTML += `<div class="msg user">${input.value}</div>`;
-    const userMsg = input.value;
-    input.value = "";
-
-    try {
-        const res = await fetch("https://student-ygb9.onrender.com/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: userMsg })
-        });
-        const data = await res.json();
-        chat.innerHTML += `<div class="msg">${data.reply}</div>`;
-    } catch (e) {
-        chat.innerHTML += `<div class="msg">AI is currently offline.</div>`;
-    }
-}
 </script>
+</body>
+</html>
