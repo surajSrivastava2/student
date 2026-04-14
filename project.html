@@ -6,7 +6,10 @@
     <title>Student Hub Pro</title>
     <style>
         :root { --primary: #4a90e2; --secondary: #2c3e50; --success: #27ae60; --danger: #e74c3c; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 
+<body>
+
+    <div id="auth-container" class="card">sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         #app { display: none; max-width: 800px; width: 90%; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
@@ -22,9 +25,6 @@
         th { background: var(--primary); color: white; }
     </style>
 </head>
-<body>
-
-    <div id="auth-container" class="card">
         <div id="login-form">
             <h2>Student Login</h2>
             <input type="email" id="email" placeholder="Email Address">
@@ -79,98 +79,77 @@
     </div>
 
 <script>
-    const API_BASE = "https://student-ygb9.onrender.com/api";
+    // Ye tumhara Render ka address hai
+    const BASE_URL = "https://student-ygb9.onrender.com/api"; 
 
-    // --- NAVIGATION ---
-    function toggleAuth(isSignup) {
-        document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
-        document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
-    }
-
-    function showModule(modId) {
-        document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
-        document.getElementById(modId).classList.add('active-module');
-        if(modId === 'attendance') fetchAttendance();
-    }
-
-    // --- AUTH LOGIC ---
-    async function handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
-        try {
-            const res = await fetch(`${API_BASE}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
-            if(data.success) {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                document.getElementById('welcomeMsg').innerText = `Hi, ${data.user.name}!`;
-                fetchAttendance();
-            } else { alert(data.message); }
-        } catch (e) { alert("Server starting... wait 10 seconds."); }
-    }
-
-    async function handleSignup() {
+    // 1. SIGNUP FUNCTION
+    async function signup() {
         const name = document.getElementById('newName').value;
         const email = document.getElementById('newEmail').value;
         const password = document.getElementById('newPass').value;
+
         try {
-            const res = await fetch(`${API_BASE}/signup`, {
+            const res = await fetch(`${BASE_URL}/signup`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ name, email, password })
             });
             const data = await res.json();
             alert(data.message);
-            if(data.success) toggleAuth(false);
-        } catch (e) { alert("Signup error"); }
+            if(data.success) {
+                // Agar signup ho jaye toh login panel dikhao (agar banaya hai toh)
+                console.log("User registered!");
+            }
+        } catch (err) {
+            alert("Backend connected nahi hai. URL check karo!");
+        }
     }
 
-    // --- FEATURES ---
-    async function fetchAttendance() {
-        try {
-            const res = await fetch(`${API_BASE}/attendance`);
-            const data = await res.json();
-            let html = "<tr><th>Subject</th><th>Status</th></tr>";
-            data.forEach(item => {
-                html += `<tr><td>${item.subject}</td><td>${item.percent}%</td></tr>`;
-            });
-            document.getElementById('attTable').innerHTML = html;
-        } catch (e) { document.getElementById('attTable').innerHTML = "<tr><td>Error loading data</td></tr>"; }
-    }
-
-    async function askAI() {
-        const input = document.getElementById('aiInput');
-        const box = document.getElementById('chatBox');
-        if(!input.value) return;
-        
-        box.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
-        const query = input.value;
-        input.value = "";
+    // 2. LOGIN FUNCTION
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
 
         try {
-            const res = await fetch(`${API_BASE}/chat`, {
+            const res = await fetch(`${BASE_URL}/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: query })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, password })
             });
             const data = await res.json();
-            box.innerHTML += `<p style="color:var(--success)"><b>AI:</b> ${data.reply}</p>`;
-        } catch (e) { box.innerHTML += `<p style="color:var(--danger)"><b>AI:</b> Thinking... (Try again)</p>`; }
-        box.scrollTop = box.scrollHeight;
+            if(data.success) { 
+                localStorage.setItem('user', JSON.stringify(data.user));
+                alert("Login Successful! Redirecting...");
+                window.location.href = "dashboard.html"; // Dashboard par bhej do
+            } else { 
+                alert(data.message); 
+            }
+        } catch (err) {
+            alert("Server error! Backend check karo.");
+        }
     }
 
-    function startQuiz() {
-        const container = document.getElementById('quizContainer');
-        container.innerHTML = `
-            <p><b>Q: Which language is used for web logic?</b></p>
-            <button onclick="alert('Correct!')">JavaScript</button>
-            <button onclick="alert('Try again!')">Python</button>
-        `;
+    // 3. QUIZ GENERATOR FUNCTION
+    async function getQuiz() {
+        const topic = document.getElementById('quizTopic').value;
+        const display = document.getElementById('quizDisplay');
+
+        if(!topic) return alert("Topic daalo bhai!");
+        display.innerText = "AI is thinking... 🧠";
+
+        try {
+            const res = await fetch(`${BASE_URL}/quiz`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ topic })
+            });
+            const data = await res.json();
+            display.innerText = data.quiz;
+        } catch (err) {
+            display.innerText = "Quiz generate nahi ho paya.";
+        }
     }
 </script>
 </body>
 </html>
+
