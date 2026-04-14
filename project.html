@@ -401,7 +401,7 @@ let name=document.getElementById("signupName").value
 let email=document.getElementById("signupEmail").value
 let password=document.getElementById("signupPassword").value
 
-let res=await fetch("/api/signup",{
+let res=await fetch("https://student-ygb9.onrender.com/api/signup",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({name,email,password})
